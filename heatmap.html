@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkoutTracker</title>
+    <title>Notion Progress Tracker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -72,20 +72,21 @@
         }
         
         .view-toggle button.active {
-            background: #911961;
+            background: #4a6cf7;
             color: white;
             box-shadow: 0 2px 8px rgba(74, 108, 247, 0.3);
         }
         
         .calendar-container {
             overflow-x: auto;
+            margin-bottom: 1rem;
         }
         
         /* Year View */
         .year-view {
             display: grid;
             grid-template-columns: repeat(53, 1fr);
-            gap: 3px;
+            gap: 2px;
             margin-bottom: 1.5rem;
         }
         
@@ -93,7 +94,7 @@
         .month-view {
             display: none;
             grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
+            gap: 3px;
             margin-bottom: 1.5rem;
         }
         
@@ -127,39 +128,39 @@
             width: 100%;
             aspect-ratio: 1;
             background-color: #ebedf0;
-            border-radius: 4px;
+            border-radius: 2px;
             cursor: pointer;
             transition: transform 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 500;
         }
         
         .day:hover {
-            transform: scale(1.1);
+            transform: scale(1.2);
         }
         
         .weekday-header {
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .legend {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 3px;
+            gap: 2px;
             margin-top: 1rem;
         }
         
         .legend-text {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #666;
-            margin: 0 5px;
+            margin: 0 4px;
         }
         
         .controls {
@@ -178,7 +179,7 @@
         }
         
         button {
-            background: #69081c;
+            background: #4a6cf7;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -189,7 +190,7 @@
         }
         
         button:hover {
-            background: #450311;
+            background: #3b5be3;
         }
         
         select {
@@ -200,7 +201,7 @@
         
         .stats {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             margin-top: 1rem;
             flex-wrap: wrap;
             justify-content: center;
@@ -208,43 +209,68 @@
         
         .stat-box {
             background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             text-align: center;
-            min-width: 100px;
+            min-width: 80px;
             flex: 1;
         }
         
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            color: #69081c;
+            color: #4a6cf7;
         }
         
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #666;
         }
         
         .instructions {
             background: #f9fafb;
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-radius: 8px;
             margin-top: 2rem;
             line-height: 1.6;
+            font-size: 0.9rem;
         }
         
         .instructions h3 {
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             color: #333;
+            font-size: 1.1rem;
         }
         
         .instructions ol {
-            padding-left: 1.5rem;
+            padding-left: 1.2rem;
         }
         
         .instructions li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+        
+        .resize-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .resize-btn {
+            background: #6c757d;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .size-value {
+            font-size: 0.9rem;
+            font-weight: 500;
         }
         
         @media (max-width: 768px) {
@@ -267,7 +293,7 @@
             }
             
             .day {
-                font-size: 10px;
+                font-size: 8px;
             }
         }
     </style>
@@ -284,7 +310,7 @@
             <button id="month-view-btn"><i class="fas fa-calendar-day"></i> Month View</button>
         </div>
         
-        <div class="calendar-container">
+        <div class="calendar-container" id="calendar-container">
             <!-- Year View -->
             <div class="year-view" id="year-view"></div>
             
@@ -306,13 +332,20 @@
             </div>
         </div>
         
+        <div class="resize-controls">
+            <button class="resize-btn" id="decrease-size">-</button>
+            <span class="size-value" id="size-value">100%</span>
+            <button class="resize-btn" id="increase-size">+</button>
+        </div>
+        
         <div class="legend">
             <span class="legend-text">Less</span>
-            <div class="day" style="background-color: #ebedf0;"></div>
-            <div class="day" style="background-color: #c6e48b;"></div>
-            <div class="day" style="background-color: #7bc96f;"></div>
-            <div class="day" style="background-color: #239a3b;"></div>
-            <div class="day" style="background-color: #196127;"></div>
+            <div class="day" style="background-color: #fbd0dc;"></div>
+            <div class="day" style="background-color: #f47196;"></div>
+            <div class="day" style="background-color: #ef2a61;"></div>
+            <div class="day" style="background-color: #be0e40;"></div>
+            <div class="day" style="background-color: #8e0b30;"></div>
+            <div class="day" style="background-color: #4f061b;"></div>
             <span class="legend-text">More</span>
         </div>
         
@@ -347,14 +380,15 @@
     </div>
     
     <div class="container instructions">
-        <h3>How to Use This Tracker in Notion</h3>
+        <h3>How to Use This Tracker</h3>
         <ol>
             <li>Toggle between Year and Month views using the buttons</li>
             <li>Click on individual days to mark your progress (multiple clicks cycle through progress levels)</li>
+            <li>Use the + and - buttons to resize the calendar to fit your Notion page</li>
             <li>Use the year selector to view different years (including future years)</li>
             <li>In month view, use the arrows to navigate between months</li>
             <li>Export your data using the Export Data button</li>
-            <li>To embed in Notion, take a screenshot and add it as an image</li>
+            <li>Take a screenshot and add it to Notion as an image</li>
         </ol>
     </div>
 
@@ -373,6 +407,10 @@
             const currentMonthEl = document.getElementById('current-month');
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
+            const decreaseSizeBtn = document.getElementById('decrease-size');
+            const increaseSizeBtn = document.getElementById('increase-size');
+            const sizeValueEl = document.getElementById('size-value');
+            const calendarContainer = document.getElementById('calendar-container');
             
             let progressData = {};
             const currentDate = new Date();
@@ -380,6 +418,7 @@
             const currentMonth = currentDate.getMonth();
             let viewingMonth = currentMonth;
             let viewingYear = currentYear;
+            let currentScale = 1;
             
             // Initialize year selector with options from 2020 to 2030
             function initYearSelector() {
@@ -538,11 +577,13 @@
             // Set day color based on progress level
             function setDayColor(day, progress) {
                 const colors = [
-                    '#ebedf0', // default
-                    '#c6e48b', // level 1
-                    '#7bc96f', // level 2
-                    '#239a3b', // level 3
-                    '#196127'  // level 4
+                    '#ebedf0', // default (no progress)
+                    '#fbd0dc', // level 1
+                    '#f47196', // level 2
+                    '#ef2a61', // level 3
+                    '#be0e40', // level 4
+                    '#8e0b30', // level 5
+                    '#4f061b'  // level 6
                 ];
                 
                 day.style.backgroundColor = colors[progress] || colors[0];
@@ -553,7 +594,7 @@
                 if (!progressData[dateStr]) {
                     progressData[dateStr] = 1;
                 } else {
-                    progressData[dateStr] = (progressData[dateStr] + 1) % 5;
+                    progressData[dateStr] = (progressData[dateStr] + 1) % 7;
                 }
                 
                 // Update the day element in year view
@@ -681,9 +722,41 @@
                 generateMonthView(viewingYear, viewingMonth);
             });
             
+            // Resize functionality
+            decreaseSizeBtn.addEventListener('click', function() {
+                if (currentScale > 0.5) {
+                    currentScale -= 0.1;
+                    updateScale();
+                }
+            });
+            
+            increaseSizeBtn.addEventListener('click', function() {
+                if (currentScale < 1.5) {
+                    currentScale += 0.1;
+                    updateScale();
+                }
+            });
+            
+            function updateScale() {
+                calendarContainer.style.transform = `scale(${currentScale})`;
+                calendarContainer.style.transformOrigin = 'top center';
+                sizeValueEl.textContent = `${Math.round(currentScale * 100)}%`;
+                
+                // Save scale to localStorage
+                localStorage.setItem('calendarScale', currentScale);
+            }
+            
             // Initialize the app
             initYearSelector();
             initProgressData();
+            
+            // Load saved scale if exists
+            const savedScale = localStorage.getItem('calendarScale');
+            if (savedScale) {
+                currentScale = parseFloat(savedScale);
+                updateScale();
+            }
+            
             generateYearView(currentYear);
         });
     </script>
