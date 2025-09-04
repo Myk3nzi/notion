@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notion Progress Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -48,28 +49,103 @@
             line-height: 1.6;
         }
         
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 50px;
+            padding: 4px;
+            width: 240px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .view-toggle button {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .view-toggle button.active {
+            background: #4a6cf7;
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.3);
+        }
+        
         .calendar-container {
             overflow-x: auto;
         }
         
-        .calendar {
+        /* Year View */
+        .year-view {
             display: grid;
             grid-template-columns: repeat(53, 1fr);
             gap: 3px;
             margin-bottom: 1.5rem;
         }
         
+        /* Month View */
+        .month-view {
+            display: none;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .month-header {
+            grid-column: span 7;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .month-nav {
+            background: #f8f9fa;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .month-nav:hover {
+            background: #e9ecef;
+        }
+        
         .day {
-            width: 14px;
-            height: 14px;
+            width: 100%;
+            aspect-ratio: 1;
             background-color: #ebedf0;
-            border-radius: 2px;
+            border-radius: 4px;
             cursor: pointer;
             transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
         }
         
         .day:hover {
-            transform: scale(1.3);
+            transform: scale(1.1);
+        }
+        
+        .weekday-header {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
         }
         
         .legend {
@@ -126,6 +202,8 @@
             display: flex;
             gap: 20px;
             margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .stat-box {
@@ -134,6 +212,7 @@
             border-radius: 8px;
             text-align: center;
             min-width: 100px;
+            flex: 1;
         }
         
         .stat-value {
@@ -173,7 +252,7 @@
                 padding: 1rem;
             }
             
-            .calendar {
+            .year-view {
                 grid-template-columns: repeat(26, 1fr);
             }
             
@@ -186,6 +265,10 @@
                 flex-wrap: wrap;
                 justify-content: center;
             }
+            
+            .day {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -193,11 +276,34 @@
     <div class="container">
         <header>
             <h1>Notion Progress Tracker</h1>
-            <p class="description">Track your daily progress with this calendar heatmap. Click on days to mark your progress and see your consistency over time.</p>
+            <p class="description">Track your daily progress with this calendar heatmap. Toggle between year and month views.</p>
         </header>
         
+        <div class="view-toggle">
+            <button id="year-view-btn" class="active"><i class="fas fa-calendar-alt"></i> Year View</button>
+            <button id="month-view-btn"><i class="fas fa-calendar-day"></i> Month View</button>
+        </div>
+        
         <div class="calendar-container">
-            <div class="calendar" id="calendar"></div>
+            <!-- Year View -->
+            <div class="year-view" id="year-view"></div>
+            
+            <!-- Month View -->
+            <div class="month-view" id="month-view">
+                <div class="month-header">
+                    <button class="month-nav" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <h2 id="current-month">January 2024</h2>
+                    <button class="month-nav" id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="weekday-header">Sun</div>
+                <div class="weekday-header">Mon</div>
+                <div class="weekday-header">Tue</div>
+                <div class="weekday-header">Wed</div>
+                <div class="weekday-header">Thu</div>
+                <div class="weekday-header">Fri</div>
+                <div class="weekday-header">Sat</div>
+                <!-- Days will be inserted here by JavaScript -->
+            </div>
         </div>
         
         <div class="legend">
@@ -223,15 +329,17 @@
                 <div class="stat-value" id="completion-rate">0%</div>
                 <div class="stat-label">Completion Rate</div>
             </div>
+            <div class="stat-box">
+                <div class="stat-value" id="month-total">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
         </div>
         
         <div class="controls">
             <div class="year-selector">
                 <label for="year-select">View Year:</label>
                 <select id="year-select">
-                    <option value="2023">2023</option>
-                    <option value="2024" selected>2024</option>
-                    <option value="2025">2025</option>
+                    <!-- Options will be dynamically generated -->
                 </select>
             </div>
             <button id="export-btn">Export Data</button>
@@ -241,30 +349,51 @@
     <div class="container instructions">
         <h3>How to Use This Tracker in Notion</h3>
         <ol>
+            <li>Toggle between Year and Month views using the buttons</li>
             <li>Click on individual days to mark your progress (multiple clicks cycle through progress levels)</li>
-            <li>Use the year selector to view different years</li>
+            <li>Use the year selector to view different years (including future years)</li>
+            <li>In month view, use the arrows to navigate between months</li>
             <li>Export your data using the Export Data button</li>
-            <li>To embed in Notion, click the three dots in the top right corner of this page and select "Print", then save as PDF</li>
-            <li>Alternatively, you can take a screenshot and add it to Notion as an image</li>
-            <li>For advanced integration, you would need to use Notion's API (more complex setup)</li>
+            <li>To embed in Notion, take a screenshot and add it as an image</li>
         </ol>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const calendar = document.getElementById('calendar');
+            const yearView = document.getElementById('year-view');
+            const monthView = document.getElementById('month-view');
+            const yearViewBtn = document.getElementById('year-view-btn');
+            const monthViewBtn = document.getElementById('month-view-btn');
             const yearSelect = document.getElementById('year-select');
             const exportBtn = document.getElementById('export-btn');
             const totalDaysEl = document.getElementById('total-days');
             const currentStreakEl = document.getElementById('current-streak');
             const completionRateEl = document.getElementById('completion-rate');
+            const monthTotalEl = document.getElementById('month-total');
+            const currentMonthEl = document.getElementById('current-month');
+            const prevMonthBtn = document.getElementById('prev-month');
+            const nextMonthBtn = document.getElementById('next-month');
             
             let progressData = {};
-            const currentYear = new Date().getFullYear();
             const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            let viewingMonth = currentMonth;
+            let viewingYear = currentYear;
             
-            // Initialize with current year selected
-            yearSelect.value = currentYear;
+            // Initialize year selector with options from 2020 to 2030
+            function initYearSelector() {
+                yearSelect.innerHTML = '';
+                for (let year = 2020; year <= 2030; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === currentYear) {
+                        option.selected = true;
+                    }
+                    yearSelect.appendChild(option);
+                }
+            }
             
             // Initialize progress data from localStorage or create empty
             function initProgressData() {
@@ -274,9 +403,25 @@
                 }
             }
             
-            // Generate calendar for a specific year
-            function generateCalendar(year) {
-                calendar.innerHTML = '';
+            // Toggle between views
+            yearViewBtn.addEventListener('click', function() {
+                yearView.style.display = 'grid';
+                monthView.style.display = 'none';
+                yearViewBtn.classList.add('active');
+                monthViewBtn.classList.remove('active');
+            });
+            
+            monthViewBtn.addEventListener('click', function() {
+                yearView.style.display = 'none';
+                monthView.style.display = 'grid';
+                yearViewBtn.classList.remove('active');
+                monthViewBtn.classList.add('active');
+                generateMonthView(viewingYear, viewingMonth);
+            });
+            
+            // Generate year view calendar
+            function generateYearView(year) {
+                yearView.innerHTML = '';
                 
                 // Start from the first day of the year
                 const startDate = new Date(year, 0, 1);
@@ -308,10 +453,76 @@
                     // Add tooltip
                     day.title = `${formatDisplayDate(dayDate)}: ${progress > 0 ? 'Level ' + progress : 'No progress'}`;
                     
-                    calendar.appendChild(day);
+                    yearView.appendChild(day);
                 }
                 
                 updateStats();
+            }
+            
+            // Generate month view calendar
+            function generateMonthView(year, month) {
+                // Clear existing days (keep weekday headers)
+                const days = monthView.querySelectorAll('.day');
+                days.forEach(day => day.remove());
+                
+                // Update month header
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                currentMonthEl.textContent = `${monthNames[month]} ${year}`;
+                
+                // Get first day of month and last day of month
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < firstDay.getDay(); i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.className = 'day';
+                    emptyDay.style.visibility = 'hidden';
+                    monthView.appendChild(emptyDay);
+                }
+                
+                // Create day elements for the month
+                for (let i = 1; i <= lastDay.getDate(); i++) {
+                    const dayDate = new Date(year, month, i);
+                    const day = document.createElement('div');
+                    day.className = 'day';
+                    day.textContent = i;
+                    day.setAttribute('data-date', formatDate(dayDate));
+                    
+                    // Set color based on progress
+                    const dateStr = formatDate(dayDate);
+                    const progress = progressData[dateStr] || 0;
+                    setDayColor(day, progress);
+                    
+                    // Add click event to update progress
+                    day.addEventListener('click', function() {
+                        updateProgress(dateStr);
+                    });
+                    
+                    // Add tooltip
+                    day.title = `${formatDisplayDate(dayDate)}: ${progress > 0 ? 'Level ' + progress : 'No progress'}`;
+                    
+                    monthView.appendChild(day);
+                }
+                
+                updateStats();
+                updateMonthTotal(year, month);
+            }
+            
+            // Update month total statistic
+            function updateMonthTotal(year, month) {
+                let monthTotal = 0;
+                
+                // Count progress for the month
+                for (let day = 1; day <= 31; day++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    if (progressData[dateStr] > 0) {
+                        monthTotal++;
+                    }
+                }
+                
+                monthTotalEl.textContent = monthTotal;
             }
             
             // Format date as YYYY-MM-DD for storage
@@ -345,18 +556,31 @@
                     progressData[dateStr] = (progressData[dateStr] + 1) % 5;
                 }
                 
-                // Update the day element
-                const dayEl = document.querySelector(`.day[data-date="${dateStr}"]`);
-                if (dayEl) {
-                    setDayColor(dayEl, progressData[dateStr]);
+                // Update the day element in year view
+                const yearDayEl = document.querySelector(`.year-view .day[data-date="${dateStr}"]`);
+                if (yearDayEl) {
+                    setDayColor(yearDayEl, progressData[dateStr]);
                     const date = new Date(dateStr);
-                    dayEl.title = `${formatDisplayDate(date)}: Level ${progressData[dateStr]}`;
+                    yearDayEl.title = `${formatDisplayDate(date)}: Level ${progressData[dateStr]}`;
+                }
+                
+                // Update the day element in month view
+                const monthDayEl = document.querySelector(`.month-view .day[data-date="${dateStr}"]`);
+                if (monthDayEl) {
+                    setDayColor(monthDayEl, progressData[dateStr]);
+                    const date = new Date(dateStr);
+                    monthDayEl.title = `${formatDisplayDate(date)}: Level ${progressData[dateStr]}`;
                 }
                 
                 // Save to localStorage
                 localStorage.setItem('progressData', JSON.stringify(progressData));
                 
                 updateStats();
+                
+                // Update month total if in month view
+                if (monthView.style.display === 'grid') {
+                    updateMonthTotal(viewingYear, viewingMonth);
+                }
             }
             
             // Update statistics
@@ -417,12 +641,50 @@
             
             // Year selector change event
             yearSelect.addEventListener('change', function() {
-                generateCalendar(parseInt(this.value));
+                const year = parseInt(this.value);
+                generateYearView(year);
+                
+                // If in month view, update that too
+                if (monthView.style.display === 'grid') {
+                    viewingYear = year;
+                    // Make sure we don't go to future months that don't exist yet
+                    if (year === currentYear && viewingMonth > currentMonth) {
+                        viewingMonth = currentMonth;
+                    }
+                    generateMonthView(viewingYear, viewingMonth);
+                }
+            });
+            
+            // Month navigation
+            prevMonthBtn.addEventListener('click', function() {
+                viewingMonth--;
+                if (viewingMonth < 0) {
+                    viewingMonth = 11;
+                    viewingYear--;
+                    yearSelect.value = viewingYear;
+                }
+                generateMonthView(viewingYear, viewingMonth);
+            });
+            
+            nextMonthBtn.addEventListener('click', function() {
+                viewingMonth++;
+                if (viewingMonth > 11) {
+                    viewingMonth = 0;
+                    viewingYear++;
+                    yearSelect.value = viewingYear;
+                }
+                // Don't allow navigating to future months that don't exist yet
+                if (viewingYear > currentYear || (viewingYear === currentYear && viewingMonth > currentMonth)) {
+                    viewingYear = currentYear;
+                    viewingMonth = currentMonth;
+                }
+                generateMonthView(viewingYear, viewingMonth);
             });
             
             // Initialize the app
+            initYearSelector();
             initProgressData();
-            generateCalendar(currentYear);
+            generateYearView(currentYear);
         });
     </script>
 </body>
