@@ -14,110 +14,115 @@
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            background: #f8f9fa;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 2rem;
+            min-height: 100vh;
+            padding: 10px;
         }
         
-        .container {
-            max-width: 1000px;
-            width: 100%;
+        .widget-container {
+            width: 600px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            transform: scale(0.7);
+            transform-origin: top center;
         }
         
         header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 10px;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
             font-weight: 600;
         }
         
         .description {
             color: #666;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            line-height: 1.4;
         }
         
         .view-toggle {
             display: flex;
             justify-content: center;
-            margin-bottom: 1rem;
+            margin-bottom: 8px;
             background: #f8f9fa;
-            border-radius: 50px;
-            padding: 4px;
-            width: 240px;
-            margin: 0 auto 1rem;
+            border-radius: 20px;
+            padding: 2px;
+            width: 180px;
+            margin: 0 auto 8px;
+            font-size: 0.8rem;
         }
         
         .view-toggle button {
-            padding: 8px 16px;
+            padding: 4px 10px;
             border: none;
             background: none;
-            border-radius: 50px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s;
             flex: 1;
+            font-size: 0.7rem;
         }
         
         .view-toggle button.active {
             background: #4a6cf7;
             color: white;
-            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.3);
         }
         
         .calendar-container {
             overflow-x: auto;
-            margin-bottom: 1rem;
+            margin-bottom: 8px;
         }
         
         /* Year View */
         .year-view {
             display: grid;
             grid-template-columns: repeat(53, 1fr);
-            gap: 2px;
-            margin-bottom: 1.5rem;
+            gap: 1px;
+            margin-bottom: 10px;
         }
         
         /* Month View */
         .month-view {
             display: none;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            margin-bottom: 1.5rem;
+            gap: 2px;
+            margin-bottom: 10px;
         }
         
         .month-header {
             grid-column: span 7;
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9rem;
         }
         
         .month-nav {
             background: #f8f9fa;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             cursor: pointer;
             transition: background 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.7rem;
         }
         
         .month-nav:hover {
@@ -128,13 +133,13 @@
             width: 100%;
             aspect-ratio: 1;
             background-color: #ebedf0;
-            border-radius: 2px;
+            border-radius: 1px;
             cursor: pointer;
             transition: transform 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 8px;
             font-weight: 500;
         }
         
@@ -144,28 +149,28 @@
         
         .weekday-header {
             text-align: center;
-            font-size: 10px;
+            font-size: 8px;
             color: #666;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         
         .legend {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            margin: 0.5rem 0 1.5rem 0;
+            gap: 1px;
+            margin: 6px 0 10px 0;
         }
         
         .legend-text {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #666;
-            margin: 0 4px;
+            margin: 0 3px;
         }
         
         .legend-day {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 1px;
         }
         
@@ -173,26 +178,28 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #eee;
         }
         
         .year-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            font-size: 0.8rem;
         }
         
         button {
             background: #4a6cf7;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: 500;
             transition: background 0.3s;
+            font-size: 0.7rem;
         }
         
         button:hover {
@@ -200,88 +207,43 @@
         }
         
         select {
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 5px 8px;
+            border-radius: 4px;
             border: 1px solid #ddd;
+            font-size: 0.7rem;
         }
         
         .stats {
             display: flex;
-            gap: 15px;
-            margin-top: 1rem;
+            gap: 8px;
+            margin-top: 8px;
             flex-wrap: wrap;
             justify-content: center;
         }
         
         .stat-box {
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 6px;
+            border-radius: 4px;
             text-align: center;
-            min-width: 80px;
+            min-width: 60px;
             flex: 1;
         }
         
         .stat-value {
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #4a6cf7;
         }
         
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #666;
         }
         
-        .instructions {
-            background: #f9fafb;
-            padding: 1.2rem;
-            border-radius: 8px;
-            margin-top: 2rem;
-            line-height: 1.6;
-            font-size: 0.9rem;
-        }
-        
-        .instructions h3 {
-            margin-bottom: 0.8rem;
-            color: #333;
-            font-size: 1.1rem;
-        }
-        
-        .instructions ol {
-            padding-left: 1.2rem;
-        }
-        
-        .instructions li {
-            margin-bottom: 0.4rem;
-        }
-        
-        .resize-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 1rem;
-            justify-content: center;
-        }
-        
-        .resize-btn {
-            background: #6c757d;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-        }
-        
-        .size-value {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+            .widget-container {
+                width: 500px;
             }
             
             .year-view {
@@ -290,7 +252,7 @@
             
             .controls {
                 flex-direction: column;
-                gap: 15px;
+                gap: 8px;
             }
             
             .stats {
@@ -299,21 +261,21 @@
             }
             
             .day {
-                font-size: 8px;
+                font-size: 7px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="widget-container">
         <header>
-            <h1>Notion Progress Tracker</h1>
-            <p class="description">Track your daily progress with this calendar heatmap. Toggle between year and month views.</p>
+            <h1>Progress Tracker</h1>
+            <p class="description">Track your daily progress with this compact widget</p>
         </header>
         
         <div class="view-toggle">
-            <button id="year-view-btn" class="active"><i class="fas fa-calendar-alt"></i> Year View</button>
-            <button id="month-view-btn"><i class="fas fa-calendar-day"></i> Month View</button>
+            <button id="year-view-btn" class="active"><i class="fas fa-calendar-alt"></i> Year</button>
+            <button id="month-view-btn"><i class="fas fa-calendar-day"></i> Month</button>
         </div>
         
         <div class="legend">
@@ -349,12 +311,6 @@
             </div>
         </div>
         
-        <div class="resize-controls">
-            <button class="resize-btn" id="decrease-size">-</button>
-            <span class="size-value" id="size-value">100%</span>
-            <button class="resize-btn" id="increase-size">+</button>
-        </div>
-        
         <div class="stats">
             <div class="stat-box">
                 <div class="stat-value" id="total-days">0</div>
@@ -380,26 +336,13 @@
         
         <div class="controls">
             <div class="year-selector">
-                <label for="year-select">View Year:</label>
+                <label for="year-select">Year:</label>
                 <select id="year-select">
                     <!-- Options will be dynamically generated -->
                 </select>
             </div>
             <button id="export-btn">Export Data</button>
         </div>
-    </div>
-    
-    <div class="container instructions">
-        <h3>How to Use This Tracker</h3>
-        <ol>
-            <li>Toggle between Year and Month views using the buttons</li>
-            <li>Click on individual days to mark your progress (multiple clicks cycle through progress levels)</li>
-            <li>Use the + and - buttons to resize the calendar to fit your Notion page</li>
-            <li>Use the year selector to view different years (including future years)</li>
-            <li>In month view, use the arrows to navigate between months</li>
-            <li>Export your data using the Export Data button</li>
-            <li>Take a screenshot and add it to Notion as an image</li>
-        </ol>
     </div>
 
     <script>
@@ -418,10 +361,6 @@
             const currentMonthEl = document.getElementById('current-month');
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
-            const decreaseSizeBtn = document.getElementById('decrease-size');
-            const increaseSizeBtn = document.getElementById('increase-size');
-            const sizeValueEl = document.getElementById('size-value');
-            const calendarContainer = document.getElementById('calendar-container');
             
             let progressData = {};
             const currentDate = new Date();
@@ -429,7 +368,6 @@
             const currentMonth = currentDate.getMonth();
             let viewingMonth = currentMonth;
             let viewingYear = currentYear;
-            let currentScale = 1;
             
             // Initialize year selector with options from 2020 to 2030
             function initYearSelector() {
@@ -755,41 +693,9 @@
                 generateMonthView(viewingYear, viewingMonth);
             });
             
-            // Resize functionality
-            decreaseSizeBtn.addEventListener('click', function() {
-                if (currentScale > 0.5) {
-                    currentScale -= 0.1;
-                    updateScale();
-                }
-            });
-            
-            increaseSizeBtn.addEventListener('click', function() {
-                if (currentScale < 1.5) {
-                    currentScale += 0.1;
-                    updateScale();
-                }
-            });
-            
-            function updateScale() {
-                calendarContainer.style.transform = `scale(${currentScale})`;
-                calendarContainer.style.transformOrigin = 'top center';
-                sizeValueEl.textContent = `${Math.round(currentScale * 100)}%`;
-                
-                // Save scale to localStorage
-                localStorage.setItem('calendarScale', currentScale);
-            }
-            
             // Initialize the app
             initYearSelector();
             initProgressData();
-            
-            // Load saved scale if exists
-            const savedScale = localStorage.getItem('calendarScale');
-            if (savedScale) {
-                currentScale = parseFloat(savedScale);
-                updateScale();
-            }
-            
             generateYearView(currentYear);
         });
     </script>
