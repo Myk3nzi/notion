@@ -13,6 +13,22 @@
       padding: 20px;
     }
     h2 { margin-bottom: 10px; }
+    .controls {
+      margin: 15px 0;
+    }
+    .controls button {
+      padding: 5px 10px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    .controls button:hover {
+      background: #2563eb;
+    }
     .cups {
       display: flex;
       justify-content: center;
@@ -44,41 +60,66 @@
 </head>
 <body>
   <h2>💧 Daily Water Tracker</h2>
+
+  <div class="controls">
+    <button onclick="changeGoal(-1)">–</button>
+    <span id="goalLabel">Goal: 8 cups</span>
+    <button onclick="changeGoal(1)">+</button>
+  </div>
+
   <div class="cups" id="cups"></div>
   <p id="status">0 / 8 cups</p>
 
   <script>
-    const goal = 8;
+    let goal = 8;
     let cupsFilled = 0;
+
     const cupsContainer = document.getElementById("cups");
     const status = document.getElementById("status");
+    const goalLabel = document.getElementById("goalLabel");
 
-    // Create cups
-    for (let i = 0; i < goal; i++) {
-      const cup = document.createElement("div");
-      cup.classList.add("cup");
-      const fill = document.createElement("div");
-      fill.classList.add("cup-fill");
-      cup.appendChild(fill);
+    function renderCups() {
+      cupsContainer.innerHTML = "";
+      cupsFilled = 0;
+      for (let i = 0; i < goal; i++) {
+        const cup = document.createElement("div");
+        cup.classList.add("cup");
+        const fill = document.createElement("div");
+        fill.classList.add("cup-fill");
+        cup.appendChild(fill);
 
-      cup.addEventListener("click", () => {
-        // Toggle fill state
-        if (fill.style.height === "100%") {
-          fill.style.height = "0%";
-          cupsFilled--;
-        } else {
-          fill.style.height = "100%";
-          cupsFilled++;
-        }
-        updateStatus();
-      });
+        cup.addEventListener("click", () => {
+          if (fill.style.height === "100%") {
+            fill.style.height = "0%";
+            cupsFilled--;
+          } else {
+            fill.style.height = "100%";
+            cupsFilled++;
+          }
+          updateStatus();
+        });
 
-      cupsContainer.appendChild(cup);
+        cupsContainer.appendChild(cup);
+      }
+      updateStatus();
     }
 
     function updateStatus() {
       status.textContent = `${cupsFilled} / ${goal} cups`;
+      goalLabel.textContent = `Goal: ${goal} cups`;
     }
+
+    function changeGoal(change) {
+      const newGoal = goal + change;
+      if (newGoal >= 1 && newGoal <= 20) { // limit between 1 and 20
+        goal = newGoal;
+        renderCups();
+      }
+    }
+
+    // Initial render
+    renderCups();
   </script>
 </body>
 </html>
+
