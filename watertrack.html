@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Tracker</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f9fafb;
+      color: #333;
+      padding: 20px;
+    }
+    h2 { margin-bottom: 10px; }
+    .cups {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .cup {
+      width: 50px;
+      height: 80px;
+      border: 2px solid #3b82f6;
+      border-radius: 0 0 10px 10px;
+      position: relative;
+      cursor: pointer;
+      background: white;
+      overflow: hidden;
+    }
+    .cup-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: #3b82f6;
+      transition: height 0.3s;
+    }
+    p { font-size: 18px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h2>💧 Daily Water Tracker</h2>
+  <div class="cups" id="cups"></div>
+  <p id="status">0 / 8 cups</p>
+
+  <script>
+    const goal = 8;
+    let cupsFilled = 0;
+    const cupsContainer = document.getElementById("cups");
+    const status = document.getElementById("status");
+
+    // Create cups
+    for (let i = 0; i < goal; i++) {
+      const cup = document.createElement("div");
+      cup.classList.add("cup");
+      const fill = document.createElement("div");
+      fill.classList.add("cup-fill");
+      cup.appendChild(fill);
+
+      cup.addEventListener("click", () => {
+        // Toggle fill state
+        if (fill.style.height === "100%") {
+          fill.style.height = "0%";
+          cupsFilled--;
+        } else {
+          fill.style.height = "100%";
+          cupsFilled++;
+        }
+        updateStatus();
+      });
+
+      cupsContainer.appendChild(cup);
+    }
+
+    function updateStatus() {
+      status.textContent = `${cupsFilled} / ${goal} cups`;
+    }
+  </script>
+</body>
+</html>
