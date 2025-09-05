@@ -52,12 +52,12 @@
         .view-toggle {
             display: flex;
             justify-content: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             background: #f8f9fa;
             border-radius: 50px;
             padding: 4px;
             width: 240px;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
         }
         
         .view-toggle button {
@@ -152,15 +152,21 @@
         .legend {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: center;
             gap: 2px;
-            margin-top: 1rem;
+            margin: 0.5rem 0 1.5rem 0;
         }
         
         .legend-text {
             font-size: 0.7rem;
             color: #666;
             margin: 0 4px;
+        }
+        
+        .legend-day {
+            width: 10px;
+            height: 10px;
+            border-radius: 1px;
         }
         
         .controls {
@@ -310,6 +316,17 @@
             <button id="month-view-btn"><i class="fas fa-calendar-day"></i> Month View</button>
         </div>
         
+        <div class="legend">
+            <span class="legend-text">Less</span>
+            <div class="legend-day" style="background-color: #fbd0dc;"></div>
+            <div class="legend-day" style="background-color: #f47196;"></div>
+            <div class="legend-day" style="background-color: #ef2a61;"></div>
+            <div class="legend-day" style="background-color: #be0e40;"></div>
+            <div class="legend-day" style="background-color: #8e0b30;"></div>
+            <div class="legend-day" style="background-color: #4f061b;"></div>
+            <span class="legend-text">More</span>
+        </div>
+        
         <div class="calendar-container" id="calendar-container">
             <!-- Year View -->
             <div class="year-view" id="year-view"></div>
@@ -338,17 +355,6 @@
             <button class="resize-btn" id="increase-size">+</button>
         </div>
         
-        <div class="legend">
-            <span class="legend-text">Less</span>
-            <div class="day" style="background-color: #fbd0dc;"></div>
-            <div class="day" style="background-color: #f47196;"></div>
-            <div class="day" style="background-color: #ef2a61;"></div>
-            <div class="day" style="background-color: #be0e40;"></div>
-            <div class="day" style="background-color: #8e0b30;"></div>
-            <div class="day" style="background-color: #4f061b;"></div>
-            <span class="legend-text">More</span>
-        </div>
-        
         <div class="stats">
             <div class="stat-box">
                 <div class="stat-value" id="total-days">0</div>
@@ -365,6 +371,10 @@
             <div class="stat-box">
                 <div class="stat-value" id="month-total">0</div>
                 <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="year-total">0</div>
+                <div class="stat-label">This Year</div>
             </div>
         </div>
         
@@ -404,6 +414,7 @@
             const currentStreakEl = document.getElementById('current-streak');
             const completionRateEl = document.getElementById('completion-rate');
             const monthTotalEl = document.getElementById('month-total');
+            const yearTotalEl = document.getElementById('year-total');
             const currentMonthEl = document.getElementById('current-month');
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
@@ -547,6 +558,7 @@
                 
                 updateStats();
                 updateMonthTotal(year, month);
+                updateYearTotal(year);
             }
             
             // Update month total statistic
@@ -562,6 +574,23 @@
                 }
                 
                 monthTotalEl.textContent = monthTotal;
+            }
+            
+            // Update year total statistic
+            function updateYearTotal(year) {
+                let yearTotal = 0;
+                
+                // Count progress for the year
+                for (let month = 0; month < 12; month++) {
+                    for (let day = 1; day <= 31; day++) {
+                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        if (progressData[dateStr] > 0) {
+                            yearTotal++;
+                        }
+                    }
+                }
+                
+                yearTotalEl.textContent = yearTotal;
             }
             
             // Format date as YYYY-MM-DD for storage
@@ -618,9 +647,10 @@
                 
                 updateStats();
                 
-                // Update month total if in month view
+                // Update month and year totals if in month view
                 if (monthView.style.display === 'grid') {
                     updateMonthTotal(viewingYear, viewingMonth);
+                    updateYearTotal(viewingYear);
                 }
             }
             
@@ -665,6 +695,9 @@
                 totalDaysEl.textContent = completedDays;
                 currentStreakEl.textContent = currentStreak;
                 completionRateEl.textContent = totalDays > 0 ? Math.round((completedDays / totalDays) * 100) + '%' : '0%';
+                
+                // Update year total
+                updateYearTotal(year);
             }
             
             // Export data as JSON
