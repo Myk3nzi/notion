@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Rounded BW Calendar Widget</title>
+  <title>Mini Calendar Widget</title>
   <style>
-    /* reset and transparent page background */
+    /* Reset + transparent page bg */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%; height: 100%;
@@ -13,63 +13,77 @@
       overflow: hidden;
     }
 
-    /* outer container */
+    /* Calendar container */
     #calendar {
-      width: 100%;
-      height: 100%;
+      width: 240px;
       display: grid;
       grid-template-rows: auto auto 1fr;
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      background: var(--body-bg, #f7f7f7);
     }
 
-    /* month header */
+    /* Header with arrows */
     #calendar header {
-      background: #333;             /* soft black */
-      color: #f5f5f5;
-      text-align: center;
-      padding: 8px 0;
-      font-size: 1.2rem;
+      background: var(--header-bg, #333);
+      color: var(--header-fg, #f5f5f5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      font-size: 1rem;
+    }
+    #calendar header button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
     }
 
-    /* day-names row */
+    /* Day names row */
     .day-names {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      background: #f7f7f7;          /* white-ish */
+      background: var(--body-bg, #f7f7f7);
       color: #000;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .day-names div {
       text-align: center;
-      padding: 4px 0;
+      padding: 2px 0;
     }
 
-    /* dates grid */
+    /* Dates grid */
     .dates {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      background: #f7f7f7;
-      gap: 2px;
+      gap: 1px;
+      background: var(--body-bg, #f7f7f7);
     }
     .dates div {
+      background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 0;
-      font-size: 0.95rem;
+      padding: 4px 0;
+      font-size: 0.85rem;
       color: #000;
     }
-    .other-month { opacity: 0.35; }
-
+    .other-month { opacity: 0.3; }
   </style>
 </head>
 <body>
   <div id="calendar">
-    <header id="monthYear"></header>
+    <header>
+      <button id="prev">&#9664;</button>
+      <span id="monthYear"></span>
+      <button id="next">&#9654;</button>
+    </header>
     <div class="day-names">
       <div>M</div><div>T</div><div>W</div>
       <div>T</div><div>F</div><div>S</div><div>S</div>
@@ -78,11 +92,11 @@
   </div>
 
   <script>
-    const now = new Date();
     const monthNames = [
       'January','February','March','April','May','June',
       'July','August','September','October','November','December'
     ];
+    let current = new Date();
 
     function buildCalendar(date) {
       const year = date.getFullYear();
@@ -90,42 +104,49 @@
       document.getElementById('monthYear').textContent =
         `${monthNames[month]} ${year}`;
 
-      // compute offset so Monday = 0, Sunday = 6
       const firstDow = new Date(year, month, 1).getDay();
-      const offset = (firstDow + 6) % 7;
-
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const prevMonthDays = new Date(year, month, 0).getDate();
+      const offset = (firstDow + 6) % 7; // Monday=0
+      const daysInMonth = new Date(year, month+1, 0).getDate();
+      const prevDays = new Date(year, month, 0).getDate();
 
       const grid = document.getElementById('datesGrid');
       grid.innerHTML = '';
 
-      // leading days
+      // Leading days
       for (let i = 0; i < offset; i++) {
-        const d = prevMonthDays - offset + i + 1;
-        const cell = document.createElement('div');
-        cell.textContent = d;
+        let cell = document.createElement('div');
+        cell.textContent = prevDays - offset + i + 1;
         cell.classList.add('other-month');
         grid.appendChild(cell);
       }
-      // current month days
+      // Current month
       for (let d = 1; d <= daysInMonth; d++) {
-        const cell = document.createElement('div');
+        let cell = document.createElement('div');
         cell.textContent = d;
         grid.appendChild(cell);
       }
-      // trailing days
+      // Trailing days
       const total = offset + daysInMonth;
       const trailing = (7 - (total % 7)) % 7;
       for (let i = 1; i <= trailing; i++) {
-        const cell = document.createElement('div');
+        let cell = document.createElement('div');
         cell.textContent = i;
         cell.classList.add('other-month');
         grid.appendChild(cell);
       }
     }
 
-    buildCalendar(now);
+    document.getElementById('prev').onclick = () => {
+      current.setMonth(current.getMonth() - 1);
+      buildCalendar(current);
+    };
+    document.getElementById('next').onclick = () => {
+      current.setMonth(current.getMonth() + 1);
+      buildCalendar(current);
+    };
+
+    buildCalendar(current);
   </script>
 </body>
 </html>
+
