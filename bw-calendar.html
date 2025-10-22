@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minimal B/W Calendar Widget</title>
+  <style>
+    :root{
+      --bg:#f5f5f5;         /* soft off-white */
+      --paper:#ffffff;      /* card background */
+      --ink:#222222;        /* soft black for text */
+      --muted:#8a8a8a;      /* muted gray */
+      --accent:#e6e6e6;     /* subtle divider / cell bg */
+      --radius:8px;
+      --shadow: 0 6px 18px rgba(34,34,34,0.06);
+      --gap:10px;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family:var(--font);
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .widget{
+      width:100%;
+      max-width:420px;
+      background:var(--paper);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      border:1px solid rgba(34,34,34,0.04);
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+
+    .month{
+      font-weight:600;
+      font-size:16px;
+      letter-spacing:0.1px;
+    }
+
+    .controls{
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+
+    button.icon{
+      background:transparent;
+      border:1px solid var(--accent);
+      color:var(--ink);
+      padding:6px 8px;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:14px;
+      line-height:1;
+    }
+    button.icon:active{transform:translateY(1px)}
+    .today-btn{
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:13px;
+      cursor:pointer;
+    }
+
+    .weekday-row{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:6px;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+
+    .calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:6px;
+    }
+
+    .cell{
+      min-height:56px;
+      background:transparent;
+      border-radius:6px;
+      padding:8px;
+      color:var(--ink);
+      font-size:13px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+    }
+
+    .cell.inactive{
+      color:rgba(34,34,34,0.35);
+    }
+
+    .date{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:6px;
+      font-weight:600;
+      color:var(--ink);
+    }
+
+    .cell.today{
+      background:linear-gradient(180deg, rgba(34,34,34,0.03), rgba(34,34,34,0.02));
+      border:1px solid rgba(34,34,34,0.04);
+    }
+
+    .date.today{
+      background:var(--ink);
+      color:var(--paper);
+      width:30px;height:30px;border-radius:6px;
+      font-size:13px;
+      display:inline-grid;
+      place-items:center;
+    }
+
+    .event-dot{
+      margin-top:6px;
+      width:38px;
+      height:6px;
+      border-radius:6px;
+      background:var(--accent);
+      opacity:0.95;
+      font-size:11px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* small screens */
+    @media (max-width:360px){
+      .cell{min-height:50px;padding:6px;font-size:12px}
+      .date{width:26px;height:26px}
+      .date.today{width:28px;height:28px}
+    }
+  </style>
+</head>
+<body>
+  <main class="widget" aria-label="Minimal calendar widget">
+    <div class="header">
+      <div class="month" id="monthLabel">March 2025</div>
+      <div class="controls">
+        <button class="icon" id="prev" title="Previous month" aria-label="Previous month">◀</button>
+        <button class="icon" id="next" title="Next month" aria-label="Next month">▶</button>
+        <button class="today-btn" id="todayBtn" title="Go to today" aria-label="Today">Today</button>
+      </div>
+    </div>
+
+    <div class="weekday-row" aria-hidden="true">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+
+    <div class="calendar-grid" id="grid" role="grid" aria-label="Calendar days"></div>
+  </main>
+
+  <script>
+    (function(){
+      const grid = document.getElementById('grid');
+      const monthLabel = document.getElementById('monthLabel');
+      const prev = document.getElementById('prev');
+      const next = document.getElementById('next');
+      const todayBtn = document.getElementById('todayBtn');
+
+      let viewDate = new Date();
+      viewDate.setDate(1);
+
+      // Example minimal events map: YYYY-MM-DD => short text
+      // Edit or replace with a simple JSON fetch if you host events.
+      const events = {
+        // "2025-03-05":"Script day",
+        // "2025-03-17":"Launch",
+      };
+
+      function formatMonth(d){
+        return d.toLocaleString(undefined, {month:'long', year:'numeric'});
+      }
+
+      function toISOYMD(d){
+        const y=d.getFullYear();
+        const m=String(d.getMonth()+1).padStart(2,'0');
+        const day=String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function render(){
+        grid.innerHTML='';
+        monthLabel.textContent = formatMonth(viewDate);
+
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth();
+
+        // first day of month
+        const first = new Date(year, month, 1);
+        const startDay = first.getDay(); // 0..6
+        // days in month
+        const daysInMonth = new Date(year, month+1, 0).getDate();
+        // days in prev month
+        const prevDays = new Date(year, month, 0).getDate();
+
+        // fill leading inactive days
+        for(let i = startDay - 1; i >= 0; i--){
+          const dateNum = prevDays - i;
+          const cell = makeCell(new Date(year, month-1, dateNum), true);
+          grid.appendChild(cell);
+        }
+
+        // fill current month
+        for(let d=1; d<=daysInMonth; d++){
+          const dateObj = new Date(year, month, d);
+          const cell = makeCell(dateObj, false);
+          grid.appendChild(cell);
+        }
+
+        // fill trailing to complete weeks (total cells multiple of 7)
+        while(grid.children.length % 7 !== 0){
+          const dayCount = grid.children.length;
+          const nextIndex = dayCount - startDay - daysInMonth + 1;
+          const cell = makeCell(new Date(year, month+1, nextIndex), true);
+          grid.appendChild(cell);
+        }
+      }
+
+      function makeCell(dateObj, inactive){
+        const iso = toISOYMD(dateObj);
+        const today = new Date();
+        const isToday = iso === toISOYMD(today);
+
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (inactive ? ' inactive' : '') + (isToday ? ' today' : '');
+        cell.setAttribute('role','gridcell');
+        cell.setAttribute('aria-label', dateObj.toDateString());
+
+        const dateSpan = document.createElement('div');
+        dateSpan.className = 'date' + (isToday ? ' today' : '');
+        dateSpan.textContent = String(dateObj.getDate());
+        cell.appendChild(dateSpan);
+
+        // small event preview (if any)
+        if(events[iso]){
+          const ev = document.createElement('div');
+          ev.className = 'event-dot';
+          ev.textContent = events[iso];
+          cell.appendChild(ev);
+        } else {
+          const placeholder = document.createElement('div');
+          placeholder.style.height = '6px';
+          placeholder.style.marginTop = '6px';
+          cell.appendChild(placeholder);
+        }
+
+        // click: open native date detail (client-side)
+        cell.addEventListener('click', () => {
+          const msg = `${dateObj.toDateString()}${events[iso] ? ' — '+events[iso] : ''}`;
+          // For embedded use, keep interaction minimal: show a small toast
+          showToast(msg);
+        });
+
+        return cell;
+      }
+
+      // simple toast
+      let toastTimer = null;
+      function showToast(text){
+        let t = document.getElementById('cw-toast');
+        if(!t){
+          t = document.createElement('div');
+          t.id = 'cw-toast';
+          Object.assign(t.style,{
+            position:'fixed',
+            left:'50%',
+            transform:'translateX(-50%)',
+            bottom:'28px',
+            background:'rgba(34,34,34,0.06)',
+            color: 'var(--ink)',
+            border:'1px solid rgba(34,34,34,0.05)',
+            padding:'8px 12px',
+            borderRadius:'8px',
+            fontSize:'13px',
+            zIndex:9999,
+            backdropFilter:'blur(2px)'
+          });
+          document.body.appendChild(t);
+        }
+        t.textContent = text;
+        t.style.opacity = '1';
+        if(toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 2200);
+      }
+
+      prev.addEventListener('click', ()=> {
+        viewDate.setMonth(viewDate.getMonth() - 1);
+        render();
+      });
+
+      next.addEventListener('click', ()=> {
+        viewDate.setMonth(viewDate.getMonth() + 1);
+        render();
+      });
+
+      todayBtn.addEventListener('click', ()=> {
+        viewDate = new Date();
+        viewDate.setDate(1);
+        render();
+      });
+
+      // init
+      render();
+    })();
+  </script>
+</body>
+</html>
