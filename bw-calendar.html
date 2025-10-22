@@ -1,268 +1,128 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Compact B/W Calendar</title>
-  <style>
-    :root{
-      --bg:#f7f7f7;
-      --card:#ffffff;
-      --ink:#2e2e2e;
-      --muted:#9b9b9b;
-      --accent:#ececec;
-      --radius:8px;
-      --shadow:0 6px 14px rgba(46,46,46,0.04);
-      --font: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-    }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mini B/W Calendar - Fixed</title>
+<style>
+  :root{
+    --bg:#f8f8f8;
+    --card:#fbfbfb;
+    --ink:#3a3a3a;
+    --muted:#a7a7a7;
+    --accent:#ededed;
+    --radius:6px;
+    --font: system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    padding:6px;background:var(--bg);font-family:var(--font);color:var(--ink);
+  }
 
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0}
-    body{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px;
-      background:var(--bg);
-      font-family:var(--font);
-      color:var(--ink);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
+  .widget{
+    width:100%;max-width:220px;background:var(--card);border-radius:var(--radius);
+    padding:6px;border:1px solid rgba(58,58,58,0.04);
+  }
 
-    .widget{
-      width:100%;
-      max-width:340px;
-      background:var(--card);
-      border-radius:var(--radius);
-      padding:10px;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(46,46,46,0.03);
-    }
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .month{font-size:12px;font-weight:600;color:var(--ink)}
+  .controls{display:flex;gap:6px;align-items:center}
+  button.icon{background:transparent;border:1px solid var(--accent);color:var(--ink);padding:4px 6px;border-radius:6px;font-size:11px;cursor:pointer}
 
-    .header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:8px;
-    }
+  .weekday-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;color:var(--muted);font-size:9px;text-align:center}
 
-    .month{
-      font-size:14px;
-      font-weight:600;
-      color:var(--ink);
-    }
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cell{
+    min-height:30px;padding:3px;border-radius:6px;font-size:11px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;
+    overflow:hidden; /* prevent content spill */
+  }
+  .cell.inactive{color:rgba(58,58,58,0.36)}
 
-    .controls{display:flex;gap:6px;align-items:center}
-    button.icon{
-      background:transparent;
-      border:1px solid var(--accent);
-      color:var(--ink);
-      padding:5px 6px;
-      border-radius:6px;
-      cursor:pointer;
-      font-size:12px;
-      line-height:1;
-    }
-    button.icon:active{transform:translateY(1px)}
-    .today-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer}
+  /* Fixed-size date box prevents overflow */
+  .date{
+    width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;
+    font-weight:600;font-size:10px;line-height:1;color:var(--ink);
+    flex:0 0 18px; /* strictly fixed */
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  }
 
-    .weekday-row{
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:4px;
-      margin-bottom:6px;
-      color:var(--muted);
-      font-size:11px;
-      text-align:center;
-    }
+  .cell.today{background:linear-gradient(180deg, rgba(58,58,58,0.03), rgba(58,58,58,0.02));border:1px solid rgba(58,58,58,0.03)}
+  .date.today{background:var(--ink);color:var(--card);width:20px;height:20px;font-size:10px;flex:0 0 20px}
 
-    .calendar-grid{
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:6px;
-    }
+  .event{margin-top:6px;height:6px;width:100%;border-radius:6px;background:var(--accent);opacity:0.95;font-size:9px;color:var(--muted);display:flex;align-items:center;padding-left:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 
-    .cell{
-      min-height:44px;
-      padding:6px;
-      border-radius:6px;
-      font-size:12px;
-      color:var(--ink);
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      align-items:flex-start;
-      background:transparent;
-    }
+  /* Make sure the whole cell can't push outside */
+  .cell > * { max-width:100%; box-sizing:border-box; }
 
-    .cell.inactive{ color:rgba(46,46,46,0.36) }
-
-    .date{
-      width:26px;height:26px;border-radius:6px;
-      display:inline-grid;place-items:center;
-      font-weight:600;font-size:12px;color:var(--ink);
-    }
-
-    .cell.today{ background:linear-gradient(180deg, rgba(46,46,46,0.03), rgba(46,46,46,0.02)); border:1px solid rgba(46,46,46,0.03) }
-    .date.today{ background:var(--ink); color:var(--card); width:28px;height:28px;font-size:12px }
-
-    .event-dot{
-      margin-top:6px;
-      width:100%;
-      height:6px;
-      border-radius:6px;
-      background:var(--accent);
-      color:var(--muted);
-      font-size:11px;
-      display:flex;
-      align-items:center;
-      justify-content:left;
-      padding-left:6px;
-    }
-
-    @media (max-width:340px){
-      .widget{padding:8px}
-      .cell{min-height:40px;padding:5px}
-      .date{width:24px;height:24px}
-      .date.today{width:26px;height:26px}
-    }
-  </style>
+  @media (max-width:220px){
+    .widget{padding:5px}
+    .cell{min-height:28px;padding:3px}
+    .date{width:16px;height:16px;font-size:9px;flex:0 0 16px}
+    .date.today{width:18px;height:18px}
+  }
+</style>
 </head>
 <body>
-  <main class="widget" aria-label="Compact calendar widget">
-    <div class="header">
-      <div class="month" id="monthLabel">March 2025</div>
-      <div class="controls">
-        <button class="icon" id="prev" aria-label="Previous month">◀</button>
-        <button class="icon" id="next" aria-label="Next month">▶</button>
-        <button class="today-btn" id="todayBtn" aria-label="Today">Today</button>
-      </div>
+<main class="widget" aria-label="Mini calendar">
+  <div class="header">
+    <div class="month" id="monthLabel">Mar 2025</div>
+    <div class="controls">
+      <button class="icon" id="prev" aria-label="Prev">◀</button>
+      <button class="icon" id="next" aria-label="Next">▶</button>
     </div>
+  </div>
 
-    <div class="weekday-row" aria-hidden="true">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
+  <div class="weekday-row" aria-hidden="true">
+    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+  </div>
 
-    <div class="calendar-grid" id="grid" role="grid" aria-label="Calendar days"></div>
-  </main>
+  <div class="grid" id="grid" role="grid" aria-label="Days"></div>
+</main>
 
-  <script>
-    (function(){
-      const grid = document.getElementById('grid');
-      const monthLabel = document.getElementById('monthLabel');
-      const prev = document.getElementById('prev');
-      const next = document.getElementById('next');
-      const todayBtn = document.getElementById('todayBtn');
+<script>
+(function(){
+  const grid=document.getElementById('grid');
+  const monthLabel=document.getElementById('monthLabel');
+  const prev=document.getElementById('prev');
+  const next=document.getElementById('next');
+  let view=new Date(); view.setDate(1);
 
-      let viewDate = new Date();
-      viewDate.setDate(1);
+  const events = {
+    // "2025-03-05":"Script",
+  };
 
-      const events = {
-        // Example: "2025-03-05":"Script",
-      };
+  function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function fm(d){return d.toLocaleString(undefined,{month:'short', year:'numeric'})}
+  function render(){
+    grid.innerHTML=''; monthLabel.textContent=fm(view);
+    const y=view.getFullYear(), m=view.getMonth();
+    const first=new Date(y,m,1), start=first.getDay();
+    const days=new Date(y,m+1,0).getDate(), prevDays=new Date(y,m,0).getDate();
+    for(let i=start-1;i>=0;i--){ grid.appendChild(cell(new Date(y,m-1,prevDays-i),true)); }
+    for(let d=1;d<=days;d++){ grid.appendChild(cell(new Date(y,m,d),false)); }
+    while(grid.children.length%7!==0){ const idx=grid.children.length-start-days+1; grid.appendChild(cell(new Date(y,m+1,idx),true)); }
+  }
 
-      function formatMonth(d){ return d.toLocaleString(undefined,{month:'short', year:'numeric'}); }
-      function toISOYMD(d){
-        const y=d.getFullYear();
-        const m=String(d.getMonth()+1).padStart(2,'0');
-        const day=String(d.getDate()).padStart(2,'0');
-        return `${y}-${m}-${day}`;
-      }
+  function cell(dateObj,inactive){
+    const today=new Date(), isToday=iso(dateObj)===iso(today);
+    const el=document.createElement('div');
+    el.className='cell'+(inactive?' inactive':'')+(isToday?' today':'');
+    el.setAttribute('role','gridcell');
+    const ds=document.createElement('div');
+    ds.className='date'+(isToday?' today':'');
+    ds.textContent=dateObj.getDate();
+    el.appendChild(ds);
+    if(events[iso(dateObj)]){ const e=document.createElement('div'); e.className='event'; e.textContent=events[iso(dateObj)]; el.appendChild(e); }
+    return el;
+  }
 
-      function render(){
-        grid.innerHTML='';
-        monthLabel.textContent = formatMonth(viewDate);
+  prev.addEventListener('click',()=>{ view.setMonth(view.getMonth()-1); render(); });
+  next.addEventListener('click',()=>{ view.setMonth(view.getMonth()+1); render(); });
 
-        const year = viewDate.getFullYear();
-        const month = viewDate.getMonth();
-        const first = new Date(year, month, 1);
-        const startDay = first.getDay();
-        const daysInMonth = new Date(year, month+1, 0).getDate();
-        const prevDays = new Date(year, month, 0).getDate();
-
-        for(let i = startDay - 1; i >= 0; i--){
-          const dateNum = prevDays - i;
-          grid.appendChild(makeCell(new Date(year, month-1, dateNum), true));
-        }
-        for(let d=1; d<=daysInMonth; d++){
-          grid.appendChild(makeCell(new Date(year, month, d), false));
-        }
-        while(grid.children.length % 7 !== 0){
-          const dayCount = grid.children.length;
-          const nextIndex = dayCount - startDay - daysInMonth + 1;
-          grid.appendChild(makeCell(new Date(year, month+1, nextIndex), true));
-        }
-      }
-
-      function makeCell(dateObj, inactive){
-        const iso = toISOYMD(dateObj);
-        const today = new Date();
-        const isToday = iso === toISOYMD(today);
-
-        const cell = document.createElement('div');
-        cell.className = 'cell' + (inactive ? ' inactive' : '') + (isToday ? ' today' : '');
-        cell.setAttribute('role','gridcell');
-        cell.setAttribute('aria-label', dateObj.toDateString());
-
-        const dateSpan = document.createElement('div');
-        dateSpan.className = 'date' + (isToday ? ' today' : '');
-        dateSpan.textContent = String(dateObj.getDate());
-        cell.appendChild(dateSpan);
-
-        if(events[iso]){
-          const ev = document.createElement('div');
-          ev.className = 'event-dot';
-          ev.textContent = events[iso];
-          cell.appendChild(ev);
-        } else {
-          const ph = document.createElement('div');
-          ph.style.height='6px';
-          ph.style.marginTop='6px';
-          cell.appendChild(ph);
-        }
-
-        cell.addEventListener('click', () => {
-          const msg = `${dateObj.toDateString()}${events[iso] ? ' — '+events[iso] : ''}`;
-          showToast(msg);
-        });
-
-        return cell;
-      }
-
-      let toastTimer = null;
-      function showToast(text){
-        let t = document.getElementById('cw-toast');
-        if(!t){
-          t = document.createElement('div');
-          t.id = 'cw-toast';
-          Object.assign(t.style,{
-            position:'fixed',
-            left:'50%',
-            transform:'translateX(-50%)',
-            bottom:'20px',
-            background:'rgba(46,46,46,0.06)',
-            color: 'var(--ink)',
-            border:'1px solid rgba(46,46,46,0.04)',
-            padding:'6px 10px',
-            borderRadius:'8px',
-            fontSize:'12px',
-            zIndex:9999
-          });
-          document.body.appendChild(t);
-        }
-        t.textContent = text;
-        t.style.opacity = '1';
-        if(toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 1800);
-      }
-
-      prev.addEventListener('click', ()=>{ viewDate.setMonth(viewDate.getMonth()-1); render(); });
-      next.addEventListener('click', ()=>{ viewDate.setMonth(viewDate.getMonth()+1); render(); });
-      todayBtn.addEventListener('click', ()=>{ viewDate = new Date(); viewDate.setDate(1); render(); });
-
-      render();
-    })();
-  </script>
+  render();
+})();
+</script>
 </body>
 </html>
