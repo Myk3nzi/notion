@@ -3,60 +3,67 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fixed Mini B/W Flip Clock</title>
+<title>Flip Clock - Notion friendly</title>
 <style>
   :root{
-    --bg:#f8f8f8;
-    --card:#fbfbfb;
-    --ink:#343434;
-    --muted:#9e9e9e;
-    --accent:#ececec;
-    --radius:10px;
-    --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    --card-bg: #ffffff;    /* card face color (white to match Notion) */
+    --ink: #343434;        /* soft black text */
+    --muted: #9e9e9e;      /* muted gray */
+    --accent: #f0f0f0;     /* very subtle divider */
+    --radius: 8px;
+    --font: system-ui,-apple-system,"Segoe UI",Roboto,Arial;
   }
 
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
+  /* make page background transparent so the embed blends with Notion */
   body{
-    display:flex;align-items:center;justify-content:center;
-    background:var(--bg);font-family:var(--font);padding:12px;color:var(--ink);
+    background:transparent;
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px;
   }
 
+  /* Container uses the same white as Notion pages; remove drop shadow and colored background */
   .clock-wrap{
-    background:linear-gradient(180deg,var(--card),#ffffff);
-    border:1px solid rgba(52,52,52,0.04);
+    background:var(--card-bg);
+    border:1px solid rgba(52,52,52,0.03);
     border-radius:var(--radius);
-    padding:12px 14px;
-    display:flex;gap:10px;align-items:center;
-    box-shadow:0 8px 20px rgba(52,52,52,0.04);
+    padding:10px 12px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    box-shadow:none; /* remove shadow for flat look */
   }
 
   .unit{display:flex;gap:8px;align-items:center}
   .label{font-size:10px;color:var(--muted);width:36px;margin-bottom:6px;text-align:center;user-select:none}
 
   .flip{
-    width:72px;height:48px;perspective:900px;position:relative;
-    display:inline-block;
+    width:64px;height:44px;perspective:900px;position:relative;display:inline-block;
   }
-  .flip.small{width:54px;height:40px}
-  .flip.tiny{width:44px;height:34px}
+  .flip.small{width:50px;height:36px}
+  .flip.tiny{width:40px;height:30px}
 
-  /* static card (always visible) */
   .card{
-    position:relative;border-radius:8px;overflow:hidden;
-    background:linear-gradient(180deg, rgba(52,52,52,0.02), rgba(52,52,52,0.01));
+    position:relative;border-radius:6px;overflow:hidden;
+    background:var(--card-bg);
     border:1px solid rgba(52,52,52,0.03);
     width:100%;height:100%;display:flex;flex-direction:column;
     justify-content:center;align-items:center;
   }
   .card-top,.card-bottom{position:absolute;left:0;right:0;height:50%;display:flex;align-items:center;justify-content:center}
-  .card-top{top:0;border-bottom:1px solid rgba(52,52,52,0.02)}
-  .card-bottom{bottom:0;border-top:1px solid rgba(52,52,52,0.02)}
-  .top-text,.bottom-text{font-weight:700;color:var(--ink);font-size:28px;line-height:1;user-select:none}
-  .flip.small .top-text,.flip.small .bottom-text{font-size:22px}
-  .flip.tiny .top-text,.flip.tiny .bottom-text{font-size:18px}
+  .card-top{top:0;border-bottom:1px solid rgba(0,0,0,0.03)}
+  .card-bottom{bottom:0;border-top:1px solid rgba(0,0,0,0.02)}
+  .top-text,.bottom-text{font-weight:700;color:var(--ink);font-size:24px;line-height:1;user-select:none}
+  .flip.small .top-text,.flip.small .bottom-text{font-size:18px}
+  .flip.tiny .top-text,.flip.tiny .bottom-text{font-size:14px}
 
-  /* animated layers sit above static faces but are hidden when not active */
   .flip-anim-top,.flip-anim-bottom{
     position:absolute;left:0;right:0;overflow:hidden;height:50%;backface-visibility:hidden;
     transform-style:preserve-3d;pointer-events:none;z-index:3;visibility:hidden;
@@ -70,24 +77,16 @@
   @keyframes flipTop { 0%{transform:rotateX(0deg)} 100%{transform:rotateX(-90deg)} }
   @keyframes flipBottom { 0%{transform:rotateX(90deg)} 100%{transform:rotateX(0deg)} }
 
-  /* hidden backs for animated pieces to prevent text bleed */
-  .flip-anim-top .top-text, .flip-anim-bottom .bottom-text{
-    display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-weight:700;color:var(--ink);
-  }
-
-  .card .value, .card .top-text, .card .bottom-text{user-select:none}
-  .colon{color:var(--muted);font-weight:700;font-size:22px;user-select:none}
-  .colon.small{font-size:18px}
-  .colon.tiny{font-size:14px}
-
-  /* ensure animated layers hide after animation to avoid overlap */
   .flip.play .card{z-index:2}
   .flip .card{z-index:1}
-  .flip .card-top .top-text, .flip .card-bottom .bottom-text{font-weight:700}
+
+  .colon{color:var(--muted);font-weight:700;font-size:20px;user-select:none}
+  .colon.small{font-size:16px}
+  .colon.tiny{font-size:12px}
 
   @media (max-width:360px){
-    .flip{width:60px;height:44px}
-    .card .top-text,.card .bottom-text{font-size:24px}
+    .flip{width:56px;height:40px}
+    .top-text,.bottom-text{font-size:20px}
     .colon{font-size:18px}
   }
 </style>
@@ -154,26 +153,22 @@
     const current = flip.querySelector('.card-top .top-text').textContent;
     if(current === newVal) return;
 
-    // populate animated faces
     flip.querySelector('.flip-anim-top .top-text').textContent = current;
     flip.querySelector('.flip-anim-bottom .bottom-text').textContent = newVal;
 
-    // make anim layers visible and start
     flip.classList.remove('play');
-    void flip.offsetWidth; // reflow
+    void flip.offsetWidth;
     flip.classList.add('play');
 
-    // ensure aria-hidden states: animated layers visible during play
     flip.querySelector('.flip-anim-top').setAttribute('aria-hidden','false');
     flip.querySelector('.flip-anim-bottom').setAttribute('aria-hidden','false');
 
-    // after animation, commit and hide anim layers
     setTimeout(()=> {
       setStatic(flip, newVal);
       flip.classList.remove('play');
       flip.querySelector('.flip-anim-top').setAttribute('aria-hidden','true');
       flip.querySelector('.flip-anim-bottom').setAttribute('aria-hidden','true');
-    }, 520); // matches CSS timings (260ms + 260ms)
+    }, 520);
   }
 
   function tick(){
@@ -184,7 +179,6 @@
     if(m === '00' && s === '00') flipTo(flips.hours, h);
   }
 
-  // initial values
   const now0 = new Date();
   setStatic(flips.hours, pad(now0.getHours()));
   setStatic(flips.minutes, pad(now0.getMinutes()));
@@ -206,3 +200,4 @@
 </script>
 </body>
 </html>
+
