@@ -3,136 +3,182 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Flip Clock - Notion friendly</title>
+<title>Flip Clock - Dark Compact</title>
 <style>
-  :root{
-    --card-bg: #ffffff;    /* card face color (white to match Notion) */
-    --ink: #343434;        /* soft black text */
-    --muted: #9e9e9e;      /* muted gray */
-    --accent: #f0f0f0;     /* very subtle divider */
-    --radius: 8px;
-    --font: system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  :root {
+    --bg: #1a1a1a;
+    --card: #2a2a2a;
+    --text: #e0e0e0;
+    --muted: #999;
+    --accent: #3a3a3a;
+    --radius: 6px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   }
 
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0}
-  /* make page background transparent so the embed blends with Notion */
-  body{
-    background:transparent;
-    font-family:var(--font);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    color:var(--ink);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:8px;
+  * { box-sizing: border-box }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
   }
 
-  /* Container uses the same white as Notion pages; remove drop shadow and colored background */
-  .clock-wrap{
-    background:var(--card-bg);
-    border:1px solid rgba(52,52,52,0.03);
-    border-radius:var(--radius);
-    padding:10px 12px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-    box-shadow:none; /* remove shadow for flat look */
+  .clock {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    background: var(--bg);
+    padding: 6px 8px;
+    border-radius: var(--radius);
   }
 
-  .unit{display:flex;gap:8px;align-items:center}
-  .label{font-size:10px;color:var(--muted);width:36px;margin-bottom:6px;text-align:center;user-select:none}
-
-  .flip{
-    width:64px;height:44px;perspective:900px;position:relative;display:inline-block;
+  .unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
-  .flip.small{width:50px;height:36px}
-  .flip.tiny{width:40px;height:30px}
 
-  .card{
-    position:relative;border-radius:6px;overflow:hidden;
-    background:var(--card-bg);
-    border:1px solid rgba(52,52,52,0.03);
-    width:100%;height:100%;display:flex;flex-direction:column;
-    justify-content:center;align-items:center;
+  .label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    user-select: none;
   }
-  .card-top,.card-bottom{position:absolute;left:0;right:0;height:50%;display:flex;align-items:center;justify-content:center}
-  .card-top{top:0;border-bottom:1px solid rgba(0,0,0,0.03)}
-  .card-bottom{bottom:0;border-top:1px solid rgba(0,0,0,0.02)}
-  .top-text,.bottom-text{font-weight:700;color:var(--ink);font-size:24px;line-height:1;user-select:none}
-  .flip.small .top-text,.flip.small .bottom-text{font-size:18px}
-  .flip.tiny .top-text,.flip.tiny .bottom-text{font-size:14px}
 
-  .flip-anim-top,.flip-anim-bottom{
-    position:absolute;left:0;right:0;overflow:hidden;height:50%;backface-visibility:hidden;
-    transform-style:preserve-3d;pointer-events:none;z-index:3;visibility:hidden;
+  .flip {
+    position: relative;
+    width: 56px;
+    height: 36px;
+    perspective: 800px;
   }
-  .flip-anim-top{top:0;transform-origin:bottom}
-  .flip-anim-bottom{bottom:0;transform-origin:top}
 
-  .flip.play .flip-anim-top{visibility:visible;animation:flipTop 260ms ease-in forwards;z-index:4}
-  .flip.play .flip-anim-bottom{visibility:visible;animation:flipBottom 260ms 260ms ease-out forwards;z-index:4}
+  .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
-  @keyframes flipTop { 0%{transform:rotateX(0deg)} 100%{transform:rotateX(-90deg)} }
-  @keyframes flipBottom { 0%{transform:rotateX(90deg)} 100%{transform:rotateX(0deg)} }
+  .card-top, .card-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text);
+  }
 
-  .flip.play .card{z-index:2}
-  .flip .card{z-index:1}
+  .card-top { top: 0; border-bottom: 1px solid var(--accent); }
+  .card-bottom { bottom: 0; border-top: 1px solid var(--accent); }
 
-  .colon{color:var(--muted);font-weight:700;font-size:20px;user-select:none}
-  .colon.small{font-size:16px}
-  .colon.tiny{font-size:12px}
+  .flip-anim-top, .flip-anim-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 50%;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    visibility: hidden;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-  @media (max-width:360px){
-    .flip{width:56px;height:40px}
-    .top-text,.bottom-text{font-size:20px}
-    .colon{font-size:18px}
+  .flip-anim-top { top: 0; transform-origin: bottom; }
+  .flip-anim-bottom { bottom: 0; transform-origin: top; }
+
+  .flip.play .flip-anim-top {
+    visibility: visible;
+    animation: flipTop 260ms ease-in forwards;
+    z-index: 2;
+  }
+
+  .flip.play .flip-anim-bottom {
+    visibility: visible;
+    animation: flipBottom 260ms 260ms ease-out forwards;
+    z-index: 2;
+  }
+
+  @keyframes flipTop {
+    0% { transform: rotateX(0deg); }
+    100% { transform: rotateX(-90deg); }
+  }
+
+  @keyframes flipBottom {
+    0% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+
+  .colon {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--muted);
+    user-select: none;
   }
 </style>
 </head>
 <body>
-  <div class="clock-wrap" role="timer" aria-live="polite" aria-label="Flip clock">
-    <div class="unit">
-      <div class="label">HOURS</div>
-      <div class="flip" data-type="hours" aria-hidden="false">
-        <div class="card" aria-hidden="false">
-          <div class="card-top"><div class="top-text">00</div></div>
-          <div class="card-bottom"><div class="bottom-text">00</div></div>
-        </div>
-        <div class="flip-anim-top" aria-hidden="true"><div class="top-text">00</div></div>
-        <div class="flip-anim-bottom" aria-hidden="true"><div class="bottom-text">00</div></div>
+<div class="clock" role="timer" aria-live="polite">
+  <div class="unit">
+    <div class="label">HRS</div>
+    <div class="flip" data-type="hours">
+      <div class="card">
+        <div class="card-top"><div>00</div></div>
+        <div class="card-bottom"><div>00</div></div>
       </div>
-    </div>
-
-    <div class="colon">:</div>
-
-    <div class="unit">
-      <div class="label">MIN</div>
-      <div class="flip" data-type="minutes">
-        <div class="card">
-          <div class="card-top"><div class="top-text">00</div></div>
-          <div class="card-bottom"><div class="bottom-text">00</div></div>
-        </div>
-        <div class="flip-anim-top" aria-hidden="true"><div class="top-text">00</div></div>
-        <div class="flip-anim-bottom" aria-hidden="true"><div class="bottom-text">00</div></div>
-      </div>
-    </div>
-
-    <div class="colon small">:</div>
-
-    <div class="unit">
-      <div class="label">SEC</div>
-      <div class="flip tiny" data-type="seconds">
-        <div class="card">
-          <div class="card-top"><div class="top-text">00</div></div>
-          <div class="card-bottom"><div class="bottom-text">00</div></div>
-        </div>
-        <div class="flip-anim-top" aria-hidden="true"><div class="top-text">00</div></div>
-        <div class="flip-anim-bottom" aria-hidden="true"><div class="bottom-text">00</div></div>
-      </div>
+      <div class="flip-anim-top"><div>00</div></div>
+      <div class="flip-anim-bottom"><div>00</div></div>
     </div>
   </div>
+
+  <div class="colon">:</div>
+
+  <div class="unit">
+    <div class="label">MIN</div>
+    <div class="flip" data-type="minutes">
+      <div class="card">
+        <div class="card-top"><div>00</div></div>
+        <div class="card-bottom"><div>00</div></div>
+      </div>
+      <div class="flip-anim-top"><div>00</div></div>
+      <div class="flip-anim-bottom"><div>00</div></div>
+    </div>
+  </div>
+
+  <div class="colon">:</div>
+
+  <div class="unit">
+    <div class="label">SEC</div>
+    <div class="flip" data-type="seconds">
+      <div class="card">
+        <div class="card-top"><div>00</div></div>
+        <div class="card-bottom"><div>00</div></div>
+      </div>
+      <div class="flip-anim-top"><div>00</div></div>
+      <div class="flip-anim-bottom"><div>00</div></div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -144,30 +190,21 @@
   };
 
   function setStatic(flip, value){
-    flip.querySelector('.card-top .top-text').textContent = value;
-    flip.querySelector('.card-bottom .bottom-text').textContent = value;
+    flip.querySelector('.card-top div').textContent = value;
+    flip.querySelector('.card-bottom div').textContent = value;
   }
 
   function flipTo(flip, newVal){
-    if(!flip) return;
-    const current = flip.querySelector('.card-top .top-text').textContent;
+    const current = flip.querySelector('.card-top div').textContent;
     if(current === newVal) return;
-
-    flip.querySelector('.flip-anim-top .top-text').textContent = current;
-    flip.querySelector('.flip-anim-bottom .bottom-text').textContent = newVal;
-
+    flip.querySelector('.flip-anim-top div').textContent = current;
+    flip.querySelector('.flip-anim-bottom div').textContent = newVal;
     flip.classList.remove('play');
     void flip.offsetWidth;
     flip.classList.add('play');
-
-    flip.querySelector('.flip-anim-top').setAttribute('aria-hidden','false');
-    flip.querySelector('.flip-anim-bottom').setAttribute('aria-hidden','false');
-
-    setTimeout(()=> {
+    setTimeout(() => {
       setStatic(flip, newVal);
       flip.classList.remove('play');
-      flip.querySelector('.flip-anim-top').setAttribute('aria-hidden','true');
-      flip.querySelector('.flip-anim-bottom').setAttribute('aria-hidden','true');
     }, 520);
   }
 
@@ -186,18 +223,12 @@
 
   tick();
   const msToNext = 1000 - (Date.now() % 1000);
-  setTimeout(()=> setInterval(tick, 1000), msToNext);
-
-  document.addEventListener('visibilitychange', ()=> {
-    if(!document.hidden){
-      const now = new Date();
-      setStatic(flips.hours, pad(now.getHours()));
-      setStatic(flips.minutes, pad(now.getMinutes()));
-      setStatic(flips.seconds, pad(now.getSeconds()));
-    }
-  });
+  setTimeout(() => setInterval(tick, 1000), msToNext);
 })();
 </script>
+</body>
+</html>
+
 </body>
 </html>
 
